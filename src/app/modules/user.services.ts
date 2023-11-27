@@ -25,7 +25,9 @@ const getUsers = async () => {
 }
 
 const getSingleUser = async (id: number) => {
-  const result = await User.findOne({ userId: id })
+  const result = await User.findOne({ userId: id }).select(
+    '-_id -password -fullName._id -address._id -orders',
+  )
   return result
 }
 

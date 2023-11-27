@@ -51,15 +51,11 @@ const handleGetSingleUser = async (req: Request, res: Response) => {
     const userId = Number(uId)
     const userData = await UserServices.getSingleUser(userId)
 
-    const savedUserWithoutPass = await User.findOne({
-      userId: userData?.userId,
-    }).select('-_id -password -fullName._id -address._id -orders')
-
     if (await User.isExist(userId)) {
       res.status(200).json({
         success: true,
         message: 'User data retrieved!',
-        data: savedUserWithoutPass,
+        data: userData,
       })
     } else {
       throw new Error('User not found in db!')
