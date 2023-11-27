@@ -1,3 +1,5 @@
+import { Model } from 'mongoose'
+
 export type TUserName = {
   firstName: string
   lastName: string
@@ -26,4 +28,9 @@ export type TUser = {
   hobbies: Array<string>
   address: TAddress
   orders?: Array<TOrder>
+}
+
+// static method type to check if user already exist in db
+export interface UserModel extends Model<TUser> {
+  isExist(id: number): Promise<TUser | null>
 }

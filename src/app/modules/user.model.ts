@@ -1,5 +1,5 @@
 import { Model, Schema, model } from 'mongoose'
-import { TUser } from './user.interface'
+import { TUser, UserModel } from './user.interface'
 import bcrypt from 'bcrypt'
 import config from '../config'
 
@@ -20,7 +20,7 @@ const orderSchema = new Schema({
   quantity: { type: Number, required: true },
 })
 
-const userSchema = new Schema<TUser>({
+const userSchema = new Schema<TUser, UserModel>({
   userId: { type: Number, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -33,6 +33,11 @@ const userSchema = new Schema<TUser>({
   orders: { type: [orderSchema] },
 })
 
+// static method to check if user already exist in db
+userSchema.static('isExist', async function isExist(id: number) {
+  const existingUser = await User.findOne({ userId: id })
+  return existingUser
+})
 // middlewere to hash password before savnig
 userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(
@@ -42,6 +47,6 @@ userSchema.pre('save', async function (next) {
   next()
 })
 
-const User = model<TUser>('User', userSchema)
+const User = model<TUser, UserModel>('User', userSchema)
 
 export default User

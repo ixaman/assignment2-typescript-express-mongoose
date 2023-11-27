@@ -9,7 +9,7 @@ const handleCreateUser = async (req: Request, res: Response) => {
     //again making query to get the saved user and removing the password field
     const savedUserWithoutPass = await User.findOne({
       userId: result.userId,
-    }).select('-password -fullName._id -address._id')
+    }).select('-_id -password -fullName._id -address._id -orders')
 
     res.status(200).json({
       success: true,
@@ -50,11 +50,19 @@ const handleGetSingleUser = async (req: Request, res: Response) => {
     const userId = Number(uId)
     const userData = await UserServices.getSingleUser(userId)
 
-    res.status(200).json({
-      success: true,
-      message: 'User data retrieved!',
-      data: userData,
-    })
+    const savedUserWithoutPass = await User.findOne({
+      userId: userData?.userId,
+    }).select('-_id -password -fullName._id -address._id -orders')
+
+    if (await User.isExist(userId)) {
+      res.status(200).json({
+        success: true,
+        message: 'User data retrieved!',
+        data: savedUserWithoutPass,
+      })
+    } else {
+      throw new Error('User not found in db!')
+    }
   } catch (error: any) {
     res.status(404).json({
       success: false,
