@@ -8,5 +8,6 @@ router.post('/create-user', UsersControllers.handleCreateUser)
 router.get('/', UsersControllers.handleGetUsers)
 router.get('/:userId', UsersControllers.handleGetSingleUser)
 router.put('/:userId', UsersControllers.handleUpdateUser)
+router.delete('/:userId', UsersControllers.handleDeleteUser)
 
 export const UserRouters = router
