@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { UserServices } from './user.services'
 import User from './user.model'
+import { TUser } from './user.interface'
 
 const handleCreateUser = async (req: Request, res: Response) => {
   try {
@@ -75,8 +76,37 @@ const handleGetSingleUser = async (req: Request, res: Response) => {
   }
 }
 
+const handleUpdateUser = async (req: Request, res: Response) => {
+  try {
+    const { userId: uId } = req.params
+    const userId = Number(uId)
+    const updateData: TUser = req.body
+
+    if (await User.isExist(userId)) {
+      const updatedUser = await UserServices.updateUser(userId, updateData)
+      res.status(200).json({
+        success: true,
+        message: 'User updated successfully!',
+        data: updatedUser,
+      })
+    } else {
+      throw new Error('User not found!')
+    }
+  } catch (error: any) {
+    res.status(404).json({
+      success: false,
+      message: 'User not found!',
+      error: {
+        code: 404,
+        description: error.message || 'User not found!',
+      },
+    })
+  }
+}
+
 export const UsersControllers = {
   handleCreateUser,
   handleGetUsers,
   handleGetSingleUser,
+  handleUpdateUser,
 }

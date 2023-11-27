@@ -29,8 +29,16 @@ const getSingleUser = async (id: number) => {
   return result
 }
 
+const updateUser = async (id: number, user: TUser) => {
+  const result = await User.findOneAndUpdate({ userId: id }, user, {
+    new: true,
+  }).select('-_id -password -fullName._id -address._id -orders')
+  return result
+}
+
 export const UserServices = {
   createUserIntoDb,
   getUsers,
   getSingleUser,
+  updateUser,
 }
