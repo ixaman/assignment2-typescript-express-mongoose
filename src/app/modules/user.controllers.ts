@@ -157,6 +157,33 @@ const handleCreateOrder = async (req: Request, res: Response) => {
   }
 }
 
+const handleGetOrdersOfUser = async (req: Request, res: Response) => {
+  try {
+    const { userId: uId } = req.params
+    const userId = Number(uId)
+    if (await User.isExist(userId)) {
+      const result = await UserServices.getOrdersOfUser(userId)
+
+      res.status(200).json({
+        success: true,
+        message: 'Order fetched successfully!',
+        data: result,
+      })
+    } else {
+      throw new Error('User not found!')
+    }
+  } catch (error: any) {
+    res.status(404).json({
+      success: false,
+      message: 'User not found!',
+      error: {
+        code: 404,
+        description: error.message || 'User not found!',
+      },
+    })
+  }
+}
+
 export const UsersControllers = {
   handleCreateUser,
   handleGetUsers,
@@ -164,4 +191,5 @@ export const UsersControllers = {
   handleUpdateUser,
   handleDeleteUser,
   handleCreateOrder,
+  handleGetOrdersOfUser,
 }

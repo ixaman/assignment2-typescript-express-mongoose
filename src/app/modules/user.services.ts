@@ -51,6 +51,11 @@ const addProductToOrder = async (id: number, product: TOrder) => {
   return result
 }
 
+const getOrdersOfUser = async (id: number) => {
+  const result = await User.findOne({ userId: id }, { orders: 1, _id: 0 })
+  return result
+}
+
 export const UserServices = {
   createUserIntoDb,
   getUsers,
@@ -58,4 +63,5 @@ export const UserServices = {
   updateUser,
   deleteUser,
   addProductToOrder,
+  getOrdersOfUser,
 }
