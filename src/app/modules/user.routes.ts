@@ -11,5 +11,9 @@ router.put('/:userId', UsersControllers.handleUpdateUser)
 router.delete('/:userId', UsersControllers.handleDeleteUser)
 router.put('/:userId/orders', UsersControllers.handleCreateOrder)
 router.get('/:userId/orders', UsersControllers.handleGetOrdersOfUser)
+router.get(
+  '/:userId/orders/total-price',
+  UsersControllers.handleGetTotalPriceOfSpecificUser,
+)
 
 export const UserRouters = router
