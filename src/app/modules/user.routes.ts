@@ -4,10 +4,11 @@ import { UsersControllers } from './user.controllers'
 const router = express.Router()
 
 // will call controller here
-router.post('/create-user', UsersControllers.handleCreateUser)
+router.post('/', UsersControllers.handleCreateUser)
 router.get('/', UsersControllers.handleGetUsers)
 router.get('/:userId', UsersControllers.handleGetSingleUser)
 router.put('/:userId', UsersControllers.handleUpdateUser)
 router.delete('/:userId', UsersControllers.handleDeleteUser)
+router.put('/:userId/orders', UsersControllers.handleCreateOrder)
 
 export const UserRouters = router
