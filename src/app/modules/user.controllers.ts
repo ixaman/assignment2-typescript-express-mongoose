@@ -2,11 +2,19 @@ import { Request, Response } from 'express'
 import { UserServices } from './user.services'
 import User from './user.model'
 import { TOrder, TUser } from './user.interface'
+import {
+  orderValidationSchema,
+  userValidationSchema,
+} from './user.zod.validations'
 
 const handleCreateUser = async (req: Request, res: Response) => {
   try {
     const userData = req.body
-    const result = await UserServices.createUserIntoDb(userData)
+
+    //validate using zod
+    const zodParsedData = userValidationSchema.parse(userData)
+
+    const result = await UserServices.createUserIntoDb(zodParsedData)
     //again making query to get the saved user and removing the password field
     const savedUserWithoutPass = await User.findOne({
       userId: result.userId,
@@ -20,7 +28,7 @@ const handleCreateUser = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || 'User not found',
+      message: error.errors || 'User not found',
     })
   }
 }
@@ -78,8 +86,10 @@ const handleUpdateUser = async (req: Request, res: Response) => {
     const userId = Number(uId)
     const updateData: TUser = req.body
 
+    const zodParsedData = userValidationSchema.parse(updateData)
+
     if (await User.isExist(userId)) {
-      const updatedUser = await UserServices.updateUser(userId, updateData)
+      const updatedUser = await UserServices.updateUser(userId, zodParsedData)
       res.status(200).json({
         success: true,
         message: 'User updated successfully!',
@@ -94,7 +104,7 @@ const handleUpdateUser = async (req: Request, res: Response) => {
       message: 'User not found!',
       error: {
         code: 404,
-        description: error.message || 'User not found!',
+        description: error.errors || 'User not found!',
       },
     })
   }
@@ -133,8 +143,9 @@ const handleCreateOrder = async (req: Request, res: Response) => {
     const { userId: uId } = req.params
     const userId = Number(uId)
     const product: TOrder = req.body
+    const zodParsedData = orderValidationSchema.parse(product)
     if (await User.isExist(userId)) {
-      const result = await UserServices.addProductToOrder(userId, product)
+      const result = await UserServices.addProductToOrder(userId, zodParsedData)
       if (result.acknowledged == true) {
         res.status(500).json({
           success: true,
@@ -151,7 +162,7 @@ const handleCreateOrder = async (req: Request, res: Response) => {
       message: 'User not found!',
       error: {
         code: 404,
-        description: error.message || 'User not found!',
+        description: error.errors || 'User not found!',
       },
     })
   }
