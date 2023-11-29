@@ -28,7 +28,11 @@ const handleCreateUser = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.errors || 'User not found',
+      message: 'Something went wrong',
+      error: {
+        code: 500,
+        description: error,
+      },
     })
   }
 }
@@ -86,9 +90,8 @@ const handleUpdateUser = async (req: Request, res: Response) => {
     const userId = Number(uId)
     const updateData: TUser = req.body
 
-    const zodParsedData = userValidationSchema.parse(updateData)
-
     if (await User.isExist(userId)) {
+      const zodParsedData = userValidationSchema.parse(updateData)
       const updatedUser = await UserServices.updateUser(userId, zodParsedData)
       res.status(200).json({
         success: true,
@@ -96,17 +99,29 @@ const handleUpdateUser = async (req: Request, res: Response) => {
         data: updatedUser,
       })
     } else {
-      throw new Error('User not found!')
+      throw new Error('User not found in db!')
     }
   } catch (error: any) {
-    res.status(404).json({
-      success: false,
-      message: 'User not found!',
-      error: {
-        code: 404,
-        description: error.errors || 'User not found!',
-      },
-    })
+    console.log(error)
+    if (error.errors) {
+      res.status(404).json({
+        success: false,
+        message: 'Something Went Wrong',
+        error: {
+          code: 404,
+          description: error.errors,
+        },
+      })
+    } else {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+        error: {
+          code: 404,
+          description: error.errors || 'User not found!',
+        },
+      })
+    }
   }
 }
 
@@ -143,8 +158,8 @@ const handleCreateOrder = async (req: Request, res: Response) => {
     const { userId: uId } = req.params
     const userId = Number(uId)
     const product: TOrder = req.body
-    const zodParsedData = orderValidationSchema.parse(product)
     if (await User.isExist(userId)) {
+      const zodParsedData = orderValidationSchema.parse(product)
       const result = await UserServices.addProductToOrder(userId, zodParsedData)
       if (result.acknowledged == true) {
         res.status(500).json({
@@ -154,17 +169,28 @@ const handleCreateOrder = async (req: Request, res: Response) => {
         })
       }
     } else {
-      throw new Error('User not found!')
+      throw new Error('User not found in db!')
     }
   } catch (error: any) {
-    res.status(404).json({
-      success: false,
-      message: 'User not found!',
-      error: {
-        code: 404,
-        description: error.errors || 'User not found!',
-      },
-    })
+    if (error.errors) {
+      res.status(404).json({
+        success: false,
+        message: 'Something Went Wrong',
+        error: {
+          code: 404,
+          description: error.errors,
+        },
+      })
+    } else {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+        error: {
+          code: 404,
+          description: error.errors || 'User not found!',
+        },
+      })
+    }
   }
 }
 
